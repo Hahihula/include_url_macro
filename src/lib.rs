@@ -7,14 +7,14 @@
 //! # Examples
 //!
 //! Basic usage with text content:
-//! ```rust
+//! ```rust,ignore
 //! use include_url_macro::include_url;
 //!
 //! const CONTENT: &str = include_url!("https://example.com/static/content.txt");
 //! ```
 //!
 //! Including JSON content with type inference:
-//! ```rust
+//! ```rust,ignore
 //! use include_url_macro::include_json_url;
 //! use serde::Deserialize;
 //!
@@ -76,7 +76,7 @@ pub(crate) fn fetch_url_content(url_str: &str) -> Result<String, String> {
 ///
 /// # Usage
 ///
-/// ```rust
+/// ```rust,ignore
 /// use include_url_macro::include_url;
 ///
 /// const STATIC_CONTENT: &str = include_url!("https://example.com/static/content.txt");
@@ -136,14 +136,14 @@ impl Parse for JsonUrlInput {
 /// # Usage
 ///
 /// Basic usage (returns `serde_json::Value`):
-/// ```rust
+/// ```rust,ignore
 /// use include_url_macro::include_json_url;
 ///
 /// let json = include_json_url!("https://jsonplaceholder.typicode.com/posts");
 /// ```
 ///
 /// Usage with a specific type:
-/// ```rust
+/// ```rust,ignore
 /// use include_url_macro::include_json_url;
 /// use serde::Deserialize;
 ///

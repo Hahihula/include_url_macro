@@ -8,18 +8,54 @@ A Rust procedural macro that fetches URL content at compile time and includes it
 ## Usage
 
 Add this to your `Cargo.toml`:
-
 ```toml
 [dependencies]
-include_url_macro = "0.1.0"
+include_url_macro = "0.1.2"
 serde = { version = "1.0", features = ["derive"] }  # Required for JSON parsing
 serde_json = "1.0"                                  # Required for JSON parsing
 ```
 
+## Features
+
+This crate supports multiple TLS backend options. Choose the one that best fits your needs:
+
+### Default (native-tls)
+
+Uses the system's native TLS implementation (OpenSSL on Linux, Secure Transport on macOS, SChannel on Windows):
+```toml
+[dependencies]
+include_url_macro = "0.1.2"
+```
+
+### Vendored OpenSSL
+
+Compiles and statically links OpenSSL, useful for CI/CD environments or when system OpenSSL is unavailable:
+```toml
+[dependencies]
+include_url_macro = { version = "0.1.2", default-features = false, features = ["native-tls-vendored"] }
+```
+
+### Pure Rust TLS (rustls)
+
+Uses rustls, a modern TLS library written in Rust with no C dependencies:
+```toml
+[dependencies]
+include_url_macro = { version = "0.1.2", default-features = false, features = ["rustls"] }
+```
+
+**Feature comparison:**
+
+| Feature | Default (`native-tls`) | `native-tls-vendored` | `rustls` |
+|---------|------------------------|----------------------|----------|
+| System certificates | ✅ Yes | ✅ Yes | ⚠️ Configurable |
+| Cross-compilation | ⚠️ Requires system libs | ✅ Easy | ✅ Easy |
+| Compile time | ✅ Fast | ⚠️ Slower | ✅ Fast |
+| Binary size | ✅ Small | ⚠️ Larger | ✅ Small |
+| Dependencies | C (OpenSSL) | C (vendored OpenSSL) | Pure Rust |
+
 ### Basic URL Content
 
 Use `include_url` to fetch and include raw content:
-
 ```rust
 use include_url_macro::include_url;
 
@@ -33,7 +69,6 @@ fn main() {
 ### JSON Content
 
 Use `include_json_url` to fetch and parse JSON content:
-
 ```rust
 use include_url_macro::include_json_url;
 use serde::Deserialize;
@@ -54,7 +89,7 @@ let user = include_json_url!("https://api.example.com/user.json", User);
 println!("User name: {}", user.name);
 ```
 
-## Features
+## Capabilities
 
 - Fetches URL content at compile time
 - Supports HTTP and HTTPS URLs
@@ -64,7 +99,8 @@ println!("User name: {}", user.name);
 - JSON parsing capabilities:
   - Parse into generic `serde_json::Value`
   - Parse into specific Rust types that implement `serde::Deserialize`
-  - Compile-time JSON validation (the type does not gets validated at compile time)
+  - Compile-time JSON validation (the type does not get validated at compile time)
+- Multiple TLS backend options for flexibility
 
 ## Safety
 
@@ -82,7 +118,6 @@ Both macros provide compile-time errors for:
 - Type mismatches when parsing JSON into specific types
 
 Example error messages:
-
 ```
 error: Invalid URL: relative URL without a base
   --> src/main.rs:4:20
